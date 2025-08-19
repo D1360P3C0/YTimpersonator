@@ -52,14 +52,13 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #00a884, #25d366);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            margin-right: 15px;
-            font-size: 18px;
+            overflow: hidden;
+        }
+
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .chat-info {
@@ -441,9 +440,11 @@
     <div class="chat-container">
         <div class="chat-header">
             <button class="back-button">←</button>
-            <div class="chat-avatar">🤖</div>
+            <div class="chat-avatar">
+                <img src="./avatarnicocmw.png" alt="Avatar de Nico">
+            </div>
             <div class="chat-info">
-                <h3 id="chatContactName">Asistente Bot</h3>
+                <h3 id="chatContactName">NICO CMW</h3>
                 <div class="chat-status" id="chatStatus">En línea</div>
             </div>
             <div class="header-actions">
@@ -458,7 +459,7 @@
             <div class="welcome-message" id="welcomeMessage">
                 <div class="bot-avatar">🤖</div>
                 <h2>¡Bienvenido!</h2>
-                <p>Tu asistente automático está listo para ayudarte. Escribe tu mensaje para comenzar la conversación.</p>
+                <p>Soy el asistente automático de Nico CMW. Tengo en mi poder toda la información que ha compartido en su canal de YouTube. Pregúntame lo que quieras.</p>
             </div>
         </div>
 
@@ -468,7 +469,7 @@
                 <textarea 
                     class="message-input" 
                     id="messageInput" 
-                    placeholder="Escribe un mensaje"
+                    placeholder="Pregúntale a Nico!"
                     rows="1"
                 ></textarea>
                 <button class="attach-button">📎</button>
@@ -559,7 +560,7 @@
                 
                 // Mensaje de bienvenida automático después de 2 segundos
                 setTimeout(() => {
-                    this.receiveMessage("¡Hola! Soy tu asistente automático. ¿En qué puedo ayudarte hoy? 😊");
+                    this.receiveMessage("Pregunta lo que quieras! 😊");
                 }, 2000);
             }
 

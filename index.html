@@ -573,15 +573,14 @@
                 this.messageInput.style.height = 'auto';
 
                 try {
-                    // Enviar a webhook y mostrar respuesta real
                     const r = await this.sendToWebhook({ message: text });
                     console.log('Webhook OK', r);
-                    if (r && r.echo) {
-                        this.receiveMessage(r.echo);   // Muestra la respuesta real del flujo
-                    }
+                    // el Respond to Webhook que te puse devuelve { ok: true, echo: "..."}
+                    const botText = r?.echo ?? r?.answer ?? r?.message ?? 'Recibido ✅';
+                    this.receiveMessage(botText);
                 } catch (error) {
                     console.error('Error enviando mensaje:', error);
-                    this.showNotification('Error al enviar mensaje', 'error');
+                    this.showNotification('No se pudo contactar con n8n', 'error');
                 }
             }
 
@@ -593,10 +592,16 @@
                 const res = await fetch(url, { method: 'GET' });
 
                 if (!res.ok) {
-                    const text = await res.text().catch(()=> '');
+                    const text = await res.text().catch(() => '');
                     throw new Error(`HTTP ${res.status} - ${text}`);
                 }
-                return await res.json(); // esperamos { ok: true, echo: "..." }
+
+                // Intentar leer JSON (lo que manda Respond to Webhook)
+                try { 
+                    return await res.json(); 
+                } catch {
+                    return {}; // por si viene vacío
+                }
             }
 
             simulateBotResponse(userMessage) {

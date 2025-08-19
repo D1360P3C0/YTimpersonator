@@ -591,25 +591,17 @@
             }
 
             async sendToWebhook(data) {
-                if (this.webhookUrl.includes('tu-n8n-webhook-url')) {
-                    console.log('Configurar webhook URL real:', data);
-                    return { success: true };
+                const url = this.webhookUrl + '?' + new URLSearchParams({
+                    message: data.message
+                }).toString();
+
+                const res = await fetch(url, { method: 'GET' });
+
+                if (!res.ok) {
+                    const text = await res.text().catch(()=> '');
+                    throw new Error(`HTTP ${res.status} - ${text}`);
                 }
-
-                const response = await fetch(this.webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'WhatsApp-Chat-Bot'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                return await response.json();
+                return await res.json(); // esperamos { ok: true, echo: "..." }
             }
 
             simulateBotResponse(userMessage) {

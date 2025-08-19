@@ -574,8 +574,10 @@
 
                 try {
                     const r = await this.sendToWebhook({ message: text });
+                    console.log('Webhook OK', r);
                     const botText = r?.echo ?? r?.answer ?? r?.message ?? 'Recibido ✅';
                     this.receiveMessage(botText);
+                    // this.simulateBotResponse(text); // <-- dejar comentado
                 } catch (e) {
                     console.error('Webhook FAIL', e);
                     this.showNotification('No se pudo contactar con n8n', 'error');
@@ -593,7 +595,7 @@
                     const text = await res.text().catch(()=> '');
                     throw new Error(`HTTP ${res.status} - ${text}`);
                 }
-                return await res.json();
+                return await res.json(); // ahora sí devuelve JSON válido
             }
 
             simulateBotResponse(userMessage) {

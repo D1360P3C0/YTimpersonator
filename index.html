@@ -431,6 +431,10 @@
                 box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             }
         }
+
+        /* Extra CSS para párrafos en burbuja */
+        .message-bubble p { margin: 0 0 8px; }
+        .message-bubble p:last-child { margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -476,6 +480,22 @@
     </div>
 
     <script>
+        function escapeHtml(s){
+          return String(s)
+            .replace(/&/g,'&amp;')
+            .replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;')
+            .replace(/'/g,'&#39;');
+        }
+
+        function formatParagraphBubble(paragraphs){
+          const parts = Array.isArray(paragraphs) ? paragraphs : [String(paragraphs ?? '')];
+          return parts
+            .map(p => `<p>${escapeHtml(p).replace(/\n/g,'<br>')}</p>`)
+            .join('');
+        }
+
         class WhatsAppChatLite {
             constructor() {
                 this.webhookUrl = 'https://diegopecoia.app.n8n.cloud/webhook/chat'; // Cambia por tu URL
@@ -564,7 +584,7 @@
                 }
 
                 // Mostrar mensaje enviado
-                this.displayMessage(text, 'sent', message.timestamp);
+                this.displayMessage(formatParagraphBubble([text]), 'sent', message.timestamp);
                 
                 // Limpiar input
                 this.messageInput.value = '';
@@ -574,13 +594,10 @@
 
                 try {
                     const r = await this.sendToWebhook({ message: text });
-                    console.log('Webhook OK (raw/parsed):', r);
-
-                    // Prioriza el campo que devolvemos desde n8n
-                    const botText = r?.echo ?? r?.answer ?? r?.message ?? String(r) ?? 'Recibido ✅';
-                    this.receiveMessage(botText);
-
-                    // Desactiva cualquier respuesta simulada
+                    // si viene array de párrafos, úsalos; si no, cae a echo/message
+                    const content = r?.paragraphs ?? r?.echo ?? r?.answer ?? r?.message ?? 'Recibido ✅';
+                    const html = Array.isArray(content) ? formatParagraphBubble(content) : formatParagraphBubble([content]);
+                    this.receiveMessage(html);
                     // this.simulateBotResponse(text);
                 } catch (e) {
                     console.error('Webhook FAIL', e);
@@ -701,7 +718,7 @@
                 
                 const textDiv = document.createElement('div');
                 textDiv.className = 'message-text';
-                textDiv.textContent = text;
+                textDiv.innerHTML = text; // aquí 'text' ya viene formateado/escapado
 
                 const timeDiv = document.createElement('div');
                 timeDiv.className = 'message-time';

@@ -36,6 +36,8 @@
             align-items: center;
             border-bottom: 1px solid #2a3942;
             position: relative;
+            padding-left: 20px;      /* separa todo del borde izquierdo */
+            column-gap: 14px;        /* espacio entre back, avatar y texto */
         }
 
         .back-button {
@@ -53,6 +55,9 @@
             height: 40px;
             border-radius: 50%;
             overflow: hidden;
+            margin-right: 12px;      /* espacio entre el avatar y el nombre */
+            /* opcional: un anillo para que no “pegue” visualmente */
+            box-shadow: 0 0 0 2px #0b141a;
         }
 
         .chat-avatar img {

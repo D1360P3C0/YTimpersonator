@@ -573,17 +573,12 @@
                 this.messageInput.style.height = 'auto';
 
                 try {
-                    // Enviar a webhook
-                    await this.sendToWebhook({
-                        message: text,
-                        timestamp: message.timestamp.toISOString(),
-                        messageId: message.id,
-                        type: 'user_message'
-                    });
-                    
-                    // Simular respuesta del bot
-                    this.simulateBotResponse(text);
-                    
+                    // Enviar a webhook y mostrar respuesta real
+                    const r = await this.sendToWebhook({ message: text });
+                    console.log('Webhook OK', r);
+                    if (r && r.echo) {
+                        this.receiveMessage(r.echo);   // Muestra la respuesta real del flujo
+                    }
                 } catch (error) {
                     console.error('Error enviando mensaje:', error);
                     this.showNotification('Error al enviar mensaje', 'error');

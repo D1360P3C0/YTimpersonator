@@ -574,10 +574,14 @@
 
                 try {
                     const r = await this.sendToWebhook({ message: text });
-                    console.log('Webhook OK', r);
-                    const botText = r?.echo ?? r?.answer ?? r?.message ?? 'Recibido ✅';
+                    console.log('Webhook OK (raw/parsed):', r);
+
+                    // Prioriza el campo que devolvemos desde n8n
+                    const botText = r?.echo ?? r?.answer ?? r?.message ?? String(r) ?? 'Recibido ✅';
                     this.receiveMessage(botText);
-                    // this.simulateBotResponse(text); // mantener comentado
+
+                    // Desactiva cualquier respuesta simulada
+                    // this.simulateBotResponse(text);
                 } catch (e) {
                     console.error('Webhook FAIL', e);
                     this.showNotification('No se pudo contactar con n8n', 'error');
@@ -585,13 +589,25 @@
             }
 
             async sendToWebhook(data) {
-                const url = this.webhookUrl + '?' + new URLSearchParams({ message: data.message }).toString();
+                const url = this.webhookUrl + '?' + new URLSearchParams({
+                    message: data.message
+                }).toString();
+
                 const res = await fetch(url, { method: 'GET' });
+
+                // Si el server fallara, lanzamos error controlado
                 if (!res.ok) {
-                    const text = await res.text().catch(()=> '');
-                    throw new Error(`HTTP ${res.status} - ${text}`);
+                    const rawErr = await res.text().catch(() => '');
+                    throw new Error(`HTTP ${res.status} - ${rawErr}`);
                 }
-                return await res.json();   // ahora sí recibes JSON válido
+
+                // Siempre leer como texto, y luego intentar JSON
+                const raw = await res.text();
+                let parsed;
+                try { parsed = JSON.parse(raw); } catch { parsed = null; }
+
+                // Devuelve objeto uniforme
+                return parsed ?? { ok: true, echo: raw };
             }
 
             simulateBotResponse(userMessage) {
